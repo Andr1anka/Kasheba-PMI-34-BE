@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.arranger'
+version = '0.0.1-SNAPSHOT'
+
+tasks.register('stage') {
+    dependsOn('build', 'clean')
+}
+
+tasks.named('build') {
+    mustRunAfter("clean")
+}
+
+tasks.register('copyToLib', Copy) {
+    into("$buildDir/libs")
+    from(configurations.implementation)
+}
+
+tasks.named('stage') {
+    dependsOn('copyToLib')
+}
+
+tasks.withType(Test) {
+    // Disable tests if the "stage" task is being executed
+    onlyIf {
+        !gradle.startParameter.taskNames.contains("stage")
+    }
+}
